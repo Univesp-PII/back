@@ -1,0 +1,4 @@
+module.exports = [
+  { id: 1002, cod: '103', empresa: 'Magazine Luiza', entregador: 'Pedro Rocha', morador_nome: 'Bruno Costa', porteiro_nome: 'Carlos Silva', retirada_porteiro_nome: 'Carlos Silva', porteiro_retirada: 'Carlos Silva', status: 'retirada', data_registro: '2026-09-21T09:15:00', data_retirada: '2026-09-21T18:05:00' },
+  { id: 1004, cod: '103', empresa: 'Shopee', entregador: 'Rafael Nunes', morador_nome: 'Ana Souza', porteiro_nome: 'Mariana Lopes', retirada_porteiro_nome: 'Mariana Lopes', porteiro_retirada: 'Mariana Lopes', status: 'retirada', data_registro: '2026-09-23T07:40:00', data_retirada: '2026-09-23T16:45:00' }
+];
