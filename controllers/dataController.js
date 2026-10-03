@@ -1,4 +1,5 @@
 const dataService = require('../services/dataService');
+const logActivity = require('../utils/activityLogger');
 
 const resourceNames = {
   morador: { singular: 'morador', plural: 'moradores' },
@@ -6,17 +7,13 @@ const resourceNames = {
   historico: { singular: 'registro do histórico', plural: 'histórico' }
 };
 
-function logActivity(description) {
-  console.info(`[atividade] ${new Date().toISOString()} ${description}`);
-}
-
 function createDataController(resource) {
   const names = resourceNames[resource];
 
   return {
     list(req, res) {
       const items = dataService.list(resource);
-      logActivity(`listou ${names.plural} quantidade=${items.length}`);
+      logActivity(`listou ${names.plural} quantidade=${items.length}`, req.get('X-User-Name'));
 
       return res.status(200).json({
         data: items,
@@ -28,11 +25,11 @@ function createDataController(resource) {
       const item = dataService.findById(resource, req.params.id);
 
       if (!item) {
-        logActivity(`consultou ${names.singular} id=${req.params.id} resultado=nao_encontrado`);
+        logActivity(`consultou ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
-      logActivity(`consultou ${names.singular} id=${item.id}`);
+      logActivity(`consultou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
       return res.status(200).json({ data: item, message: 'Registro carregado com sucesso.' });
     },
 
@@ -42,7 +39,7 @@ function createDataController(resource) {
       }
 
       const item = dataService.create(resource, req.body);
-      logActivity(`cadastrou ${names.singular} id=${item.id}`);
+      logActivity(`cadastrou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
       return res.status(201).json({ data: item, message: 'Registro cadastrado com sucesso.' });
     },
 
@@ -55,7 +52,7 @@ function createDataController(resource) {
       const item = dataService.update(resource, req.params.id, req.body);
 
       if (!item) {
-        logActivity(`tentou atualizar ${names.singular} id=${req.params.id} resultado=nao_encontrado`);
+        logActivity(`tentou atualizar ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
@@ -64,9 +61,9 @@ function createDataController(resource) {
         && String(item.status || '').toLowerCase() === 'retirada';
 
       if (registrouRetirada) {
-        logActivity(`registrou retirada encomenda id=${item.id}`);
+        logActivity(`registrou retirada encomenda id=${item.id}`, req.get('X-User-Name'));
       } else {
-        logActivity(`atualizou ${names.singular} id=${item.id}`);
+        logActivity(`atualizou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
       }
 
       return res.status(200).json({ data: item, message: 'Registro atualizado com sucesso.' });
@@ -76,11 +73,11 @@ function createDataController(resource) {
       const removed = dataService.remove(resource, req.params.id);
 
       if (!removed) {
-        logActivity(`tentou remover ${names.singular} id=${req.params.id} resultado=nao_encontrado`);
+        logActivity(`tentou remover ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
-      logActivity(`removeu ${names.singular} id=${req.params.id}`);
+      logActivity(`removeu ${names.singular} id=${req.params.id}`, req.get('X-User-Name'));
       return res.status(200).json({ message: 'Registro removido com sucesso.' });
     }
   };
