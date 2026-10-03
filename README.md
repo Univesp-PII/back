@@ -11,7 +11,7 @@ npm install
 npm run dev
 ```
 
-O servidor fica disponível em `http://localhost:8000`. Para iniciar sem reinício automático, use `npm start`.
+O servidor fica disponível em `http://localhost:8000`. O comando `npm run dev` usa Nodemon e reinicia o servidor quando arquivos do projeto mudam. Para iniciar sem reinício automático, use `npm start`.
 
 ## Estrutura
 
@@ -101,4 +101,6 @@ Os arquivos de dados ficam separados em `mocks/moradores.js`, `mocks/encomendas.
 
 ## Logs
 
-As atividades são descritas no terminal com a ação e o recurso, por exemplo `listou encomendas quantidade=5`, `consultou morador id=1`, `registrou retirada encomenda id=1001` ou `login recusado`. Logs técnicos de requisição (método, caminho, status e duração) aparecem somente quando a resposta tem status `400` ou superior. O sistema não registra corpos de requisição, senhas ou emails.
+As atividades são descritas no terminal com data e hora no formato brasileiro (`dd/mm/aaaa, hh:mm:ss`), usuário e ação, por exemplo `usuario="Carlos Silva" registrou retirada encomenda id=1001`. O front envia o usuário salvo na sessão pelo header `X-User-Name`; durante um login bem-sucedido, o nome vem do usuário retornado pelo mock. Tentativas de login não identificadas aparecem como `usuario="nao identificado"`.
+
+O header serve somente para identificação nos logs e não autentica a requisição, pois ainda não há token ou sessão validada pelo backend. Logs técnicos de requisição (método, caminho, status e duração) aparecem somente quando a resposta tem status `400` ou superior. O sistema não registra corpos de requisição, senhas ou emails.
