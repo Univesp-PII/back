@@ -1,106 +1,91 @@
-# API Receba PII
+# Receba PII - API
 
-API inicial do Receba PII, construída com Node.js e Express. A autenticação e os dados de moradores, encomendas e histórico usam mocks em memória. Ainda não há conexão com PostgreSQL.
+API desenvolvida como parte do projeto integrador Receba PII. O sistema apoia a rotina de portaria no registro e acompanhamento de encomendas destinadas aos moradores de um condomínio.
 
-## Requisitos e execução
+## Objetivo
+
+Disponibilizar ao front-end serviços para autenticar porteiros e administrar moradores, encomendas e o histórico de entregas e retiradas. Os dados são armazenados em PostgreSQL hospedado no Supabase.
+
+## Funcionalidades
+
+- Login de porteiro.
+- Cadastro, consulta, atualização e remoção de moradores.
+- Registro e gerenciamento de encomendas.
+- Registro e consulta do histórico de movimentações.
+- Atualização do status da encomenda quando ela é retirada.
+
+## Tecnologias
+
+- Node.js e Express para a API REST.
+- PostgreSQL para persistência dos dados.
+- Supabase como serviço de hospedagem do banco.
+- `pg` para comunicação com PostgreSQL e `bcryptjs` para validar senhas com hash.
+
+## Organização do projeto
+
+- `server.js`: configuração e inicialização do servidor.
+- `routes/`: definição dos caminhos HTTP.
+- `controllers/`: validação das requisições e montagem das respostas.
+- `services/`: regras da aplicação e acesso ao banco.
+- `entities/`: normalização dos dados das entidades.
+- `database/`: conexão, estrutura SQL e carga inicial para demonstração.
+
+O fluxo principal segue `rota → controller → service → PostgreSQL`.
+
+## Como executar
 
 Requisitos: Node.js e npm.
 
-```sh
-npm install
-npm run dev
+1. Instale as dependências:
+
+   ```sh
+   npm install
+   ```
+
+2. Crie seu arquivo local de configuração:
+
+   ```sh
+   cp .env.example .env
+   ```
+
+3. No `.env`, configure `DATABASE_URL` com a connection string do Session Pooler do Supabase e mantenha `PGSSL=true`. Não compartilhe nem versione o arquivo `.env`.
+
+4. No SQL Editor do Supabase, execute o conteúdo de `database/schema.sql`.
+
+5. Para carregar os registros de demonstração, execute:
+
+   ```sh
+   npm run db:seed
+   ```
+
+6. Inicie a API em modo de desenvolvimento:
+
+   ```sh
+   npm run dev
+   ```
+
+A API ficará disponível em `http://localhost:8000`. O Nodemon reinicia o servidor quando os arquivos são alterados.
+
+## Principais rotas
+
+Login:
+
+```text
+POST /api/auth/login
 ```
 
-O servidor fica disponível em `http://localhost:8000`. O comando `npm run dev` usa Nodemon e reinicia o servidor quando arquivos do projeto mudam. Para iniciar sem reinício automático, use `npm start`.
+Recursos `morador`, `encomenda` e `historico` oferecem as operações abaixo:
 
-## Estrutura
-
-- `server.js`: configura e inicia o servidor Express.
-- `routes/`: define os endpoints de autenticação e recursos.
-- `controllers/`: trata requisições e monta as respostas HTTP.
-- `services/`: contém a lógica de acesso aos dados mockados.
-- `entities/`: cria e normaliza os formatos das entidades.
-- `mocks/`: contém os usuários, moradores, encomendas e registros de histórico de exemplo.
-- `middleware/requestLogger.js`: registra requisições com resposta de erro.
-
-## Login
-
-`POST /api/auth/login`
-
-Corpo JSON:
-
-```json
-{
-	"email": "daniel@email.com",
-	"password": "daniel"
-}
-```
-
-Sucesso (`200`):
-
-```json
-{
-	"message": "Login realizado com sucesso.",
-	"user": {
-		"id": 1,
-		"nome": "Carlos Silva",
-		"email": "daniel@email.com"
-	}
-}
-```
-
-A senha não é incluída na resposta. Credenciais incorretas retornam `401`; campos ausentes ou inválidos retornam `400`. O usuário e a senha são apenas para desenvolvimento e estão em `mocks/users.js`.
-
-## Endpoints de dados
-
-Cada recurso oferece os métodos abaixo:
-
-| Método | Caminho | Ação |
+| Método | Caminho | Operação |
 | --- | --- | --- |
-| `GET` | `/api/{recurso}` | Lista registros |
-| `GET` | `/api/{recurso}/:id` | Busca um registro |
-| `POST` | `/api/{recurso}` | Cadastra um registro |
-| `PUT` | `/api/{recurso}/:id` | Atualiza um registro |
-| `DELETE` | `/api/{recurso}/:id` | Remove um registro |
+| `GET` | `/api/{recurso}` | Listar registros |
+| `GET` | `/api/{recurso}/:id` | Consultar um registro |
+| `POST` | `/api/{recurso}` | Cadastrar um registro |
+| `PUT` | `/api/{recurso}/:id` | Atualizar um registro |
+| `DELETE` | `/api/{recurso}/:id` | Remover um registro |
 
-Os recursos são `morador`, `encomenda` e `historico`. Por exemplo: `GET /api/morador` ou `POST /api/encomenda`.
+As respostas de consulta e gravação incluem os dados em `data` e uma mensagem em `message`. Os códigos HTTP indicam o resultado da operação, como `200` para sucesso, `201` para cadastro, `400` para requisição inválida e `404` para registro não encontrado.
 
-Exemplo de cadastro de morador:
+## Dados de demonstração
 
-```json
-{
-	"nomeMorador": "Joana Silva",
-	"blocoMorador": "A",
-	"apartamento": "101",
-	"telefoneMorador": "(11) 99999-0000"
-}
-```
-
-Exemplo de cadastro de encomenda:
-
-```json
-{
-	"moradorId": 1,
-	"nomeMorador": "Joana Silva",
-	"blocoMorador": "A",
-	"apartamento": "101",
-	"codigo": "PKG-123",
-	"empresa": "Loja",
-	"entregador": "Carlos",
-	"status": "pendente",
-	"dataRegistro": "2026-10-03T12:00:00.000Z",
-	"dataRetirada": "",
-	"porteiroRegistro": "Carlos Silva",
-	"porteiroRetirada": ""
-}
-```
-
-Listagens, buscas e gravações bem-sucedidas retornam `{ "data": ..., "message": "..." }`. Exclusões retornam `{ "message": "..." }`. Registro não encontrado retorna `404`; corpo JSON inválido retorna `400`.
-
-Os arquivos de dados ficam separados em `mocks/moradores.js`, `mocks/encomendas.js` e `mocks/historico.js`. Como os dados são mantidos em memória, alterações feitas durante a execução são perdidas quando o servidor reinicia.
-
-## Logs
-
-As atividades são descritas no terminal com data e hora no formato brasileiro (`dd/mm/aaaa, hh:mm:ss`), usuário e ação, por exemplo `usuario="Carlos Silva" registrou retirada encomenda id=1001`. O front envia o usuário salvo na sessão pelo header `X-User-Name`; durante um login bem-sucedido, o nome vem do usuário retornado pelo mock. Tentativas de login não identificadas aparecem como `usuario="nao identificado"`.
-
-O header serve somente para identificação nos logs e não autentica a requisição, pois ainda não há token ou sessão validada pelo backend. Logs técnicos de requisição (método, caminho, status e duração) aparecem somente quando a resposta tem status `400` ou superior. O sistema não registra corpos de requisição, senhas ou emails.
+O comando `npm run db:seed` carrega exemplos definidos em `mocks/` e um usuário de demonstração para o login. A senha desse usuário é armazenada no banco usando hash bcrypt. Esses dados servem para desenvolvimento e apresentação acadêmica; altere-os para qualquer ambiente além da demonstração.

@@ -11,8 +11,8 @@ function createDataController(resource) {
   const names = resourceNames[resource];
 
   return {
-    list(req, res) {
-      const items = dataService.list(resource);
+    async list(req, res) {
+      const items = await dataService.list(resource);
       logActivity(`listou ${names.plural} quantidade=${items.length}`, req.get('X-User-Name'));
 
       return res.status(200).json({
@@ -21,8 +21,8 @@ function createDataController(resource) {
       });
     },
 
-    findById(req, res) {
-      const item = dataService.findById(resource, req.params.id);
+    async findById(req, res) {
+      const item = await dataService.findById(resource, req.params.id);
 
       if (!item) {
         logActivity(`consultou ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
@@ -33,23 +33,23 @@ function createDataController(resource) {
       return res.status(200).json({ data: item, message: 'Registro carregado com sucesso.' });
     },
 
-    create(req, res) {
+    async create(req, res) {
       if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
         return res.status(400).json({ message: 'Envie os dados do registro em JSON.' });
       }
 
-      const item = dataService.create(resource, req.body);
+      const item = await dataService.create(resource, req.body);
       logActivity(`cadastrou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
       return res.status(201).json({ data: item, message: 'Registro cadastrado com sucesso.' });
     },
 
-    update(req, res) {
+    async update(req, res) {
       if (!req.body || typeof req.body !== 'object' || Array.isArray(req.body)) {
         return res.status(400).json({ message: 'Envie os dados do registro em JSON.' });
       }
 
-      const previousItem = dataService.findById(resource, req.params.id);
-      const item = dataService.update(resource, req.params.id, req.body);
+      const previousItem = await dataService.findById(resource, req.params.id);
+      const item = await dataService.update(resource, req.params.id, req.body);
 
       if (!item) {
         logActivity(`tentou atualizar ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
@@ -69,8 +69,8 @@ function createDataController(resource) {
       return res.status(200).json({ data: item, message: 'Registro atualizado com sucesso.' });
     },
 
-    remove(req, res) {
-      const removed = dataService.remove(resource, req.params.id);
+    async remove(req, res) {
+      const removed = await dataService.remove(resource, req.params.id);
 
       if (!removed) {
         logActivity(`tentou remover ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));

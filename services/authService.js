@@ -1,15 +1,19 @@
-const users = require('../mocks/users');
+const bcrypt = require('bcryptjs');
+const pool = require('../database/pool');
 
-function login(email, password) {
+async function login(email, password) {
   const normalizedEmail = email.trim().toLowerCase();
-  const user = users.find((item) => item.email.toLowerCase() === normalizedEmail);
+  const result = await pool.query(
+    'SELECT id, nome, email, senha_hash FROM porteiros WHERE LOWER(email) = $1',
+    [normalizedEmail]
+  );
+  const user = result.rows[0];
 
-  if (!user || user.password !== password) {
+  if (!user || !(await bcrypt.compare(password, user.senha_hash))) {
     return null;
   }
 
-  const { password: ignoredPassword, ...safeUser } = user;
-  return safeUser;
+  return { id: user.id, nome: user.nome, email: user.email };
 }
 
 module.exports = { login };
