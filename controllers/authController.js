@@ -1,7 +1,7 @@
 const authService = require('../services/authService');
 const logActivity = require('../utils/activityLogger');
 
-function login(req, res) {
+async function login(req, res) {
   const { email, password } = req.body || {};
 
   if (
@@ -14,7 +14,7 @@ function login(req, res) {
     return res.status(400).json({ message: 'Informe email e senha.' });
   }
 
-  const user = authService.login(email, password);
+  const user = await authService.login(email, password);
 
   if (!user) {
     logActivity('login recusado');
