@@ -24,7 +24,12 @@ async function login(req, res) {
   logActivity(`login realizado userId=${user.id}`, user.nome);
   return res.status(200).json({
     message: 'Login realizado com sucesso.',
-    user
+    token: user.token,
+    user: {
+      id: user.id,
+      nome: user.nome,
+      email: user.email
+    }
   });
 }
 

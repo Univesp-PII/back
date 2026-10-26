@@ -7,13 +7,17 @@ const resourceNames = {
   historico: { singular: 'registro do histórico', plural: 'histórico' }
 };
 
+function getActorName(req) {
+  return req.get('X-User-Name') || req.user?.nome || req.user?.email || 'nao identificado';
+}
+
 function createDataController(resource) {
   const names = resourceNames[resource];
 
   return {
     async list(req, res) {
       const items = await dataService.list(resource);
-      logActivity(`listou ${names.plural} quantidade=${items.length}`, req.get('X-User-Name'));
+      logActivity(`listou ${names.plural} quantidade=${items.length}`, getActorName(req));
 
       return res.status(200).json({
         data: items,
@@ -25,11 +29,11 @@ function createDataController(resource) {
       const item = await dataService.findById(resource, req.params.id);
 
       if (!item) {
-        logActivity(`consultou ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
+        logActivity(`consultou ${names.singular} id=${req.params.id} resultado=nao_encontrado`, getActorName(req));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
-      logActivity(`consultou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
+      logActivity(`consultou ${names.singular} id=${item.id}`, getActorName(req));
       return res.status(200).json({ data: item, message: 'Registro carregado com sucesso.' });
     },
 
@@ -39,7 +43,7 @@ function createDataController(resource) {
       }
 
       const item = await dataService.create(resource, req.body);
-      logActivity(`cadastrou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
+      logActivity(`cadastrou ${names.singular} id=${item.id}`, getActorName(req));
       return res.status(201).json({ data: item, message: 'Registro cadastrado com sucesso.' });
     },
 
@@ -52,7 +56,7 @@ function createDataController(resource) {
       const item = await dataService.update(resource, req.params.id, req.body);
 
       if (!item) {
-        logActivity(`tentou atualizar ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
+        logActivity(`tentou atualizar ${names.singular} id=${req.params.id} resultado=nao_encontrado`, getActorName(req));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
@@ -61,9 +65,9 @@ function createDataController(resource) {
         && String(item.status || '').toLowerCase() === 'retirada';
 
       if (registrouRetirada) {
-        logActivity(`registrou retirada encomenda id=${item.id}`, req.get('X-User-Name'));
+        logActivity(`registrou retirada encomenda id=${item.id}`, getActorName(req));
       } else {
-        logActivity(`atualizou ${names.singular} id=${item.id}`, req.get('X-User-Name'));
+        logActivity(`atualizou ${names.singular} id=${item.id}`, getActorName(req));
       }
 
       return res.status(200).json({ data: item, message: 'Registro atualizado com sucesso.' });
@@ -73,11 +77,11 @@ function createDataController(resource) {
       const removed = await dataService.remove(resource, req.params.id);
 
       if (!removed) {
-        logActivity(`tentou remover ${names.singular} id=${req.params.id} resultado=nao_encontrado`, req.get('X-User-Name'));
+        logActivity(`tentou remover ${names.singular} id=${req.params.id} resultado=nao_encontrado`, getActorName(req));
         return res.status(404).json({ message: 'Registro não encontrado.' });
       }
 
-      logActivity(`removeu ${names.singular} id=${req.params.id}`, req.get('X-User-Name'));
+      logActivity(`removeu ${names.singular} id=${req.params.id}`, getActorName(req));
       return res.status(200).json({ message: 'Registro removido com sucesso.' });
     }
   };

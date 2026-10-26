@@ -7,6 +7,7 @@ const moradorRoutes = require('./routes/moradorRoutes');
 const encomendaRoutes = require('./routes/encomendaRoutes');
 const historicoRoutes = require('./routes/historicoRoutes');
 const requestLogger = require('./middleware/requestLogger');
+const authenticateToken = require('./middleware/authenticateToken');
 const pool = require('./database/pool');
 
 const app = express();
@@ -16,9 +17,9 @@ app.use(cors());
 app.use(requestLogger);
 app.use(express.json());
 app.use('/api/auth', authRoutes);
-app.use('/api/morador', moradorRoutes);
-app.use('/api/encomenda', encomendaRoutes);
-app.use('/api/historico', historicoRoutes);
+app.use('/api/morador', authenticateToken, moradorRoutes);
+app.use('/api/encomenda', authenticateToken, encomendaRoutes);
+app.use('/api/historico', authenticateToken, historicoRoutes);
 app.use((error, req, res, next) => {
   console.error('Erro ao processar requisição:', error.message);
   res.status(500).json({ message: 'Erro interno do servidor.' });
