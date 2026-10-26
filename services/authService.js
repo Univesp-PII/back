@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const pool = require('../database/pool');
+const { signToken } = require('../utils/jwt');
 
 async function login(email, password) {
   const normalizedEmail = email.trim().toLowerCase();
@@ -13,7 +14,12 @@ async function login(email, password) {
     return null;
   }
 
-  return { id: user.id, nome: user.nome, email: user.email };
+  const tokenPayload = { id: user.id, nome: user.nome, email: user.email };
+
+  return {
+    ...tokenPayload,
+    token: signToken(tokenPayload)
+  };
 }
 
 module.exports = { login };

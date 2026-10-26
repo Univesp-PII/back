@@ -48,7 +48,7 @@ Requisitos: Node.js e npm.
    cp .env.example .env
    ```
 
-3. No `.env`, configure `DATABASE_URL` com a connection string do Session Pooler do Supabase e mantenha `PGSSL=true`. Não compartilhe nem versione o arquivo `.env`.
+3. No `.env`, configure `DATABASE_URL` com a connection string do Session Pooler do Supabase e mantenha `PGSSL=true`. Defina também `JWT_SECRET` com uma string forte para assinar os tokens. Não compartilhe nem versione o arquivo `.env`.
 
 4. No SQL Editor do Supabase, execute o conteúdo de `database/schema.sql`.
 
@@ -65,6 +65,16 @@ Requisitos: Node.js e npm.
    ```
 
 A API ficará disponível em `http://localhost:8000`. O Nodemon reinicia o servidor quando os arquivos são alterados.
+
+## Autenticação com JWT
+
+O login retorna um token JWT no payload e esse token deve ser enviado no cabeçalho `Authorization` em todas as requisições protegidas:
+
+```http
+Authorization: Bearer <token>
+```
+
+Rotas protegidas: `/api/morador`, `/api/encomenda` e `/api/historico`.
 
 ## Principais rotas
 
