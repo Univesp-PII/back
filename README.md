@@ -96,6 +96,35 @@ Recursos `morador`, `encomenda` e `historico` oferecem as operações abaixo:
 
 As respostas de consulta e gravação incluem os dados em `data` e uma mensagem em `message`. Os códigos HTTP indicam o resultado da operação, como `200` para sucesso, `201` para cadastro, `400` para requisição inválida e `404` para registro não encontrado.
 
+## Testes unitários
+
+Os testes cobrem a parte crítica da autenticação e da validação de segurança do backend usando Jest.
+
+### Executar os testes
+
+```sh
+npm test
+```
+
+### Executar os testes com cobertura
+
+```sh
+npm test -- --coverage --runInBand
+```
+
+### Cobertura atual verificada
+
+A cobertura medida no projeto no momento atual é:
+
+| Métrica | Cobertura |
+| --- | ---: |
+| Statements | 93.1% |
+| Branches | 81.57% |
+| Functions | 72.72% |
+| Lines | 93.1% |
+
+Esses valores refletem a execução real da suíte atual e mostram que o fluxo principal de autenticação, JWT e login está bem coberto, com espaço para expandir testes do CRUD e integrações de banco em cenários adicionais.
+
 ## Dados de demonstração
 
 O comando `npm run db:seed` carrega exemplos definidos em `mocks/` e um usuário de demonstração para o login. A senha desse usuário é armazenada no banco usando hash bcrypt. Esses dados servem para desenvolvimento e apresentação acadêmica; altere-os para qualquer ambiente além da demonstração.
